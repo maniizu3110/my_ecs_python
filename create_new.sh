@@ -1,6 +1,4 @@
 #!/bin/bash
-# backstageからのリクエストを受けて、新しいアプリケーションを作成する
-
 cdk bootstrap 
 
 cdk deploy --require-approval never
