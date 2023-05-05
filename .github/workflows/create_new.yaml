@@ -20,8 +20,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ github.event.inputs.aws_access_key_id || secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.aws_secret_access_key || secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ github.event.inputs.aws_region || 'ap-northeast-1' }}
 
     steps:
@@ -51,16 +51,8 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
-          pip install PyYAML>=5.1 --upgrade
           pip install -r requirements.txt
           npm install -g aws-cdk
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ github.event.inputs.aws_access_key_id }}}
-          aws-secret-access-key: ${{ github.event.inputs.aws_secret_access_key }}
-          aws-region: ${{ github.event.inputs.aws_region }}
 
       - name: Run deploy script
         run: |
