@@ -46,14 +46,6 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Install dependencies
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          npm install -g aws-cdk
-
       - name: Run deploy script
         run: |
           chmod +x create_new.sh

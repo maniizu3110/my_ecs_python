@@ -1,5 +1,16 @@
 #!/bin/bash
-cdk bootstrap 
+
+# Activate the virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+npm install -g aws-cdk
+
+# Install the dependencies
+pip install -r requirements.txt
+
+cdk bootstrap
 
 cdk deploy --require-approval never
 
