@@ -41,16 +41,17 @@ jobs:
       - name: Set github credentials
         run: export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.11
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install dependencies
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
+          pip install PyYAML>=5.1 --upgrade
           pip install -r requirements.txt
           npm install -g aws-cdk
 
