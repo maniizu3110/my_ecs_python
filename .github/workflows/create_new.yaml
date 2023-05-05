@@ -37,7 +37,7 @@ jobs:
 
       - name: get .env file
         run: |
-          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}/env .env
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/env .env
       - name: Set github credentials
         run: export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
