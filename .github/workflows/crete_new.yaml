@@ -1,0 +1,63 @@
+name: Create new ecs
+
+on:
+  workflow_dispatch:
+    inputs:
+      env_bucket_name:
+        description: "Github Repository URL"
+        required: true
+      aws_access_key_id:
+        description: "AWS Access Key ID"
+        required: true
+      aws_secret_access_key:
+        description: "AWS Secret Access Key"
+        required: true
+      aws_region:
+        description: "AWS Region"
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ github.event.inputs.aws_access_key_id }}}
+          aws-secret-access-key: ${{ github.event.inputs.aws_secret_access_key }}
+          aws-region: ${{ github.event.inputs.aws_region }}
+
+      - name: get .env file
+        run: |
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}/env .env
+      - name: Set github credentials
+        run: export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          npm install -g aws-cdk
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ github.event.inputs.aws_access_key_id }}}
+          aws-secret-access-key: ${{ github.event.inputs.aws_secret_access_key }}
+          aws-region: ${{ github.event.inputs.aws_region }}
+
+      - name: Run deploy script
+        run: |
+          chmod +x deploy.sh
+          ./deploy.sh

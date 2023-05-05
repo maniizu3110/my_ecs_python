@@ -1,0 +1,25 @@
+@startuml
+
+start
+
+:Backstage enters .env;
+:.env stored in S3;
+
+:Trigger GitHub Actions;
+
+partition "GitHub Actions" {
+    :Execute CDK Python;
+}
+
+partition "CDK Python" {
+    :Retrieve .env from S3;
+    note right: Retrieve .env saved by BackStage from S3;
+    :Create Docker image;
+    :Create RDS instance;
+    :Get image and RDS info from AWS;
+    :Create ECS Cluster using info;
+}
+
+stop
+
+@enduml
