@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set -e
+
+function cleanup {
+    echo "An error occurred. Running 'cdk destroy' to clean up resources."
+    cdk destroy --require-approval never
+}
+
+trap cleanup ERR
+
 # Activate the virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
