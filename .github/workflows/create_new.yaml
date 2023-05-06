@@ -46,11 +46,6 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Run deploy script
-        run: |
-          chmod +x create_new.sh
-          ./create_new.sh
-
       - name: Install dependencies
         run: |
           python3 -m venv .venv
