@@ -1,18 +1,20 @@
 ---
-name: deploy
+name: Build and Deploy to ECS
 on:
+  workflow_dispatch:
   push:
     branches:
-      - develop
+      - $BRANCH_NAME
 env:
-  ECS_CLUSTER_NAME: "corightdev-corightdevClusterBDD718B2-XDU8InSEZGIP"
-  ECS_SERVICE_NAME: "corightprod-corightprodbeService110299AF-IKptnvMb2cMz"
   IMAGE_TAG: ${{ github.sha }}
-  AWS_RESION: ap-northeast-1
-  ECS_TASK_NAME: "corightprodcorightprodbeTaskDef4CD6E6BC"
-  ECR_REPOSITORY: "corightprod-prodcorightbedb08268b-sssnhdvdjeqs"
-  S3_CONFIG_OBJECT: "s3://corightprod-prodcorightbeec6ed49a-k29jffk0skxj/coright.yaml"
-  DOCKERFILE_NAME: Dockerfile
+  AWS_RESION: $AWS_REGION
+  ECR_REPOSITORY: $ECR_REPOSITORY
+  ENV_S3_BUCKET: $ENV_S3_BUCKET
+  DOCKERFILE_NAME: $DOCKERFILE_NAME
+  BUILD_PATH: $BUILD_PATH
+  ECS_CLUSTER_NAME: $ECS_CLUSTER_NAME
+  ECS_SERVICE_NAME: $ECS_SERVICE_NAME
+  ECS_TASK_DEFINITION_NAME: $ECS_TASK_DEFINITION_NAME
 jobs:
   deploy:
     name: Build image
@@ -31,23 +33,16 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and Push Server Image
+        working-directory: ${{ env.BUILD_PATH }}
         run: |
-          aws s3 cp ${{ env.S3_CONFIG_OBJECT }} ./etc/coright.yaml 
+          aws s3 cp s3://${{ env.ENV_S3_BUCKET }}/env .env
           docker build --platform linux/x86_64 -f ${{ env.DOCKERFILE_NAME }} -t ${{ env.ECR_REPOSITORY }} .
           docker tag ${{ env.ECR_REPOSITORY }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-      # - name: Update ECS Service
-      #   run: |
-      #     NEW_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-      #     TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME }} --region ${{ env.AWS_RESION }})
-      #     NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
-      #     aws ecs register-task-definition --region ${{ env.AWS_RESION }} --cli-input-json "$NEW_TASK_DEFINITION"
-      #     aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --task-definition ${{ env.ECS_TASK_NAME }} --force-new-deployment
-
-
-# TODO:
-  # 1.CDKでECRの作成
-  # 2.作成した環境変数のECRをECR_REPOSITORYに登録
-  # 3.GitHub Actionsを走らせて正しくイメージが作成されるか確認
-  # 4.正しくイメージが作成されたら、CDKでECSの作成
-  # 5.作成したECSリソース名に環境変数を書き換え、コメントアウトを外す
+      - name: Update ECS Service
+        run: |
+          NEW_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME }} --region ${{ env.AWS_RESION }})
+          NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+          aws ecs register-task-definition --region ${{ env.AWS_RESION }} --cli-input-json "$NEW_TASK_DEFINITION"
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --task-definition ${{ env.ECS_TASK_NAME }} --force-new-deployment

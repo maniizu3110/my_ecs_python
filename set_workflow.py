@@ -7,6 +7,7 @@ from requests.auth import HTTPBasicAuth
 import contextlib
 from github import Github
 from setup import env
+from services.utils.get_ecs_task_definition_name import get_task_definition_names
 import argparse
 
 # DEFAULT_BRANCH = "develop"
@@ -15,19 +16,33 @@ WORK_BRANCH_NAME = "feature/add-file-from-backstage"
 WORKFLOW_FILE = ".github/workflows/build_template.yaml"
 
 
-def get_aws_resource_info_for_worklfow(branch_name) -> dict:
-    return {
-        "$AWS_REGION": env.aws_region,
-        "$ECR_REPOSITORY": env.default_service_name,
-        "$ENV_S3_BUCKET": env.default_service_name,
-        "$DOCKERFILE_NAME": env.dockerfile_name,
-        "$BUILD_PATH": env.build_path,
-        "$BRANCH_NAME":  branch_name,
-    }
+def get_aws_resource_info_for_worklfow(workflow_name, branch_name) -> dict:
+    if "build_template" in workflow_name:
+        return {
+            "$AWS_REGION": env.aws_region,
+            "$ECR_REPOSITORY": env.default_service_name,
+            "$ENV_S3_BUCKET": env.default_service_name,
+            "$DOCKERFILE_NAME": env.dockerfile_name,
+            "$BUILD_PATH": env.build_path,
+            "$BRANCH_NAME":  branch_name,
+        }
+    elif "deploy_template" in workflow_name:
+        return {
+            "$AWS_REGION": env.aws_region,
+            "$ECR_REPOSITORY": env.default_service_name,
+            "$ENV_S3_BUCKET": env.default_service_name,
+            "$DOCKERFILE_NAME": env.dockerfile_name,
+            "$BUILD_PATH": env.build_path,
+            "$BRANCH_NAME":  branch_name,
+            "$ECS_CLUSTER_NAME": env.default_service_name,
+            "$ECS_SERVICE_NAME": env.default_service_name,
+            "$ECS_TASK_DEFINITION_NAME": get_task_definition_names(env.default_service_name, env.default_service_name)[0],
+        }
 
 
 def replaceFileContent(workflow_file, branch_name):
-    replace_dict = get_aws_resource_info_for_worklfow(branch_name)
+    replace_dict = get_aws_resource_info_for_worklfow(
+        workflow_file, branch_name)
     with open(workflow_file, "r") as f:
         content = f.read()
     for key, value in replace_dict.items():

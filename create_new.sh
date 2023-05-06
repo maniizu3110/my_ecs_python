@@ -2,6 +2,7 @@
 
 set -e
 
+# when error occurred, run cleanup function
 function cleanup {
     echo "An error occurred. Running 'cdk destroy' to clean up resources."
     cdk destroy --force
@@ -16,21 +17,21 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 npm install -g aws-cdk
 
-trap cleanup ERR
 
 cdk bootstrap
 
 cdk deploy --require-approval never
 
-# replace app .env
+trap cleanup ERR
+
+# replace app .env with created aws resources information
 python3 update_env.py
 
-# push build file to repository
-python3 build_image.py
+# create workflow and commit to github for build image to ecr
+python3 set_workflow.py
 
 # update cdk
 cdk deploy --require-approval never
-
 
 
 ## 構築に必要な情報を配列で持てば、複数の環境を構築できる
