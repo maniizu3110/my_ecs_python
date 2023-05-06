@@ -10,6 +10,7 @@ from services.utils.get_ecs_services_env import list_env_file_names_with_prefix
 
 BUCKET_PREFIX = "eighty-and-co"
 
+
 def create_ecs_cluster_services():
     ecr_arr = list_env_file_names_with_prefix(
         f"{BUCKET_PREFIX}-{env.default_service_name}", env.default_service_name)
@@ -17,6 +18,7 @@ def create_ecs_cluster_services():
     for ecr in ecr_arr:
         image_url = get_latest_ecr_image_url(ecr)
         if image_url:
+            
             ecs_cluster_services.append(
                 ECSService(
                     name=ecr,
@@ -30,6 +32,7 @@ def create_ecs_cluster_services():
                     memory_limit_mib=512,
                 )
             )
+    return ecs_cluster_services
 
 
 def get_latest_ecr_image_url(repository_name: str) -> str:
