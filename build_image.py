@@ -55,7 +55,7 @@ def get_owner_and_repo(github_repository_url):
 def clone(github_repository_url, repo_dir, github_token):
     auth_repo_url = github_repository_url.replace(
         "https://", f"https://{github_token}@") + ".git"
-    repo = Repo.clone_from(auth_repo_url+".git", repo_dir)
+    repo = Repo.clone_from(auth_repo_url, repo_dir)
     print(f"Cloned repository: {github_repository_url}")
     return repo
 
