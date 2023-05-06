@@ -86,7 +86,7 @@ config = Config(
     default_service_name=env.default_service_name,
     pascal_service_name=env.pascal_service_name,
     ecr_repository_names=list_env_file_names_with_prefix(
-        env.default_service_name, env.default_service_name),
+        f"eighty-and-co-{env.default_service_name}", env.default_service_name),
     s3_bucket_names=[],
     vpc_cidr=env.vpc_cidr,
     rds_config=RDSConfig(

@@ -25,19 +25,12 @@ cdk deploy --require-approval never
 trap cleanup ERR
 
 # replace app .env with created aws resources information
+# 対象のリポジトリとenvファイルを指定
 python3 update_env.py
 
 # create workflow and commit to github for build image to ecr
+# 対象のリポジトリとenvファイルを指定
 python3 set_workflow.py
 
 # update cdk
 cdk deploy --require-approval never
-
-
-## 構築に必要な情報を配列で持てば、複数の環境を構築できる
-# cluster名をカタログで持つ
-# inputからcluster名を取得
-# repository名は同じ場合も違う場合もある
-# ->cluster名とrepository名/build-pathでユニークになる数だけ構築する
-# 実際はどこをユニークして判別するか
-# cluster名=s3bucket, key=repopository+build-path

@@ -39,10 +39,6 @@ cdk synth
 - cdk diff` デプロイされたスタックと現在の状態を比較する
 - `cdk docs` CDK のドキュメントを開く
 
-# 使用方法
 
-- [] プロジェクト名の置き換え(default minbakoecs)
-- [] ecr の作成
-  - [] ecr のリポジトリの作成
-- [] ドメインの取得
-  1. **他サイトで登録済みの場合は、Route53 のネームサーバーを変更する**# my_ecs_python
+# TODO
+- インターフェースがgithub actionsなのか,.envのダウンロードなのか、どちらなのかを明確にする

@@ -1,6 +1,7 @@
 from setup import env
 import boto3
 
+
 def delete_ecr_repository():
     ecr_client = boto3.client(
         'ecr',
@@ -13,12 +14,11 @@ def delete_ecr_repository():
     print(f"Deleted ECR repository: {env.default_service_name}")
 
 
-def delete_s3_bucket(bucket_name):    
+def delete_s3_bucket(bucket_name):
     s3_client = boto3.client(
         's3',
         region_name=env.aws_region
     )
-
 
     bucket = boto3.resource('s3').Bucket(bucket_name)
     bucket.object_versions.delete()

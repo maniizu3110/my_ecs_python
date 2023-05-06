@@ -22,7 +22,8 @@ def list_env_file_names(bucket_name):
 
 
 def list_env_file_names_with_prefix(bucket_name, prefix):
+    print(bucket_name, prefix)
     env_file_names = list_env_file_names(bucket_name)
     env_file_names_with_prefix = [
-        prefix + env_file_name for env_file_name in env_file_names]
+        f"{prefix}-{env_file_name}" for env_file_name in env_file_names]
     return env_file_names_with_prefix

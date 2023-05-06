@@ -44,8 +44,10 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
 
 def replaceFileContent(workflow_file, branch_name):
     # TODO:動的に変更
+    # env_file_nameのロジック＝repositor_name+build_path.env
+    # ecrのロジック＝env.default_service_name+(env_file_nameのロジックから.envを消したもの）
     replace_dict = get_aws_resource_info_for_worklfow(
-        workflow_file, branch_name, "eighty-and-co-backstage-sample-dev", "backstage-sample-go")
+        workflow_file, branch_name, "backstage-sample-go.dev", "backstage-sample-dev-backstage-sample-go")
     with open(workflow_file, "r") as f:
         content = f.read()
     for key, value in replace_dict.items():
@@ -193,6 +195,7 @@ if __name__ == "__main__":
     parser.add_argument("--github-repository-url",
                         help="URL of the GitHub repository.",
                         default=env.github_repository_url)
+    
     args = parser.parse_args()
     add_workflow_to_github_repository(
         workflow_file=args.workflow_file, github_repository_url=args.github_repository_url)
