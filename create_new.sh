@@ -16,9 +16,6 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 npm install -g aws-cdk
 
-# Install the dependencies
-pip install -r requirements.txt
-
 trap cleanup ERR
 
 cdk bootstrap
