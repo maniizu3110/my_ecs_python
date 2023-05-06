@@ -6,6 +6,9 @@ on:
       env_bucket_name:
         description: "s3 env bucket name"
         required: true
+      env_object_name:
+        description: "s3 env object name"
+        required: true
       aws_access_key_id:
         description: "AWS Access Key ID"
         required: false
@@ -42,7 +45,7 @@ jobs:
 
       - name: get .env file
         run: |
-          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/env .env
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/${{github.event.inputs.env_object_name}} .env 
           echo "AWS_ACCESS_KEY_ID=${{env.AWS_ACCESS_KEY_ID}}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{env.AWS_SECRET_ACCESS_KEY}}" >> .env
 
