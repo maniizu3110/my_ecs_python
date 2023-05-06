@@ -46,7 +46,7 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
 
 def replaceFileContent(workflow_file, branch_name):
     env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}.env"
-    repository = f"{env.default_service_name}-{convert_to_s3_object_name(env.build_path)}"
+    repository = f"{env.default_service_name}-{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}"
     replace_dict = get_aws_resource_info_for_worklfow(
         workflow_file, branch_name, env_file_name, repository)
     with open(workflow_file, "r") as f:
