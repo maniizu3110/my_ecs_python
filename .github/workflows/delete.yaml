@@ -1,4 +1,4 @@
-name: Create new ecs
+name: Delete ecs
 
 on:
   workflow_dispatch:
