@@ -123,8 +123,8 @@ class EcsFargate:
 
             target_group = elbv2.ApplicationTargetGroup(
                 self.stack,
-                self.service_name+cluster_service.name+"TG",
-                target_group_name=self.service_name+cluster_service.name+"TG",
+                cluster_service.name,
+                target_group_name=cluster_service.name,
                 vpc=self.vpc,
                 port=80,
                 health_check=elbv2.HealthCheck(

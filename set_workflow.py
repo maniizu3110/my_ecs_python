@@ -4,7 +4,7 @@ import shutil
 from git import Repo, Actor, GitCommandError
 from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
 from services.utils.get_repository_name import get_repository_name
-from setup import config
+from setup import BUCKET_PREFIX, config
 from requests.auth import HTTPBasicAuth
 import contextlib
 from github import Github
@@ -23,7 +23,7 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
         return {
             "$AWS_REGION": env.aws_region,
             "$ECR_REPOSITORY": repository_name,
-            "$ENV_S3_BUCKET": env.default_service_name,
+            "$ENV_S3_BUCKET": f"{BUCKET_PREFIX}-{env.default_service_name}",
             "$DOCKERFILE_NAME": env.dockerfile_name,
             "$BUILD_PATH": env.build_path,
             "$BRANCH_NAME":  branch_name,
@@ -33,7 +33,7 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
         return {
             "$AWS_REGION": env.aws_region,
             "$ECR_REPOSITORY": repository_name,
-            "$ENV_S3_BUCKET": env.default_service_name,
+            "$ENV_S3_BUCKET": f"{BUCKET_PREFIX}-{env.default_service_name}",
             "$DOCKERFILE_NAME": env.dockerfile_name,
             "$BUILD_PATH": env.build_path,
             "$BRANCH_NAME":  branch_name,

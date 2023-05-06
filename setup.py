@@ -17,8 +17,10 @@ def create_ecs_cluster_services():
     ecs_cluster_services = []
     for ecr in ecr_arr:
         image_url = get_latest_ecr_image_url(ecr)
+        # ecrが32文字以上の場合は、前半にはるenv.default_service_nameを削除する
+        if len(ecr) > 32:
+            ecr = ecr.replace(env.default_service_name+"-", "")
         if image_url:
-            
             ecs_cluster_services.append(
                 ECSService(
                     name=ecr,
@@ -43,7 +45,7 @@ def get_latest_ecr_image_url(repository_name: str) -> str:
             latest_image = sorted(
                 response['imageDetails'], key=lambda x: x['imagePushedAt'], reverse=True)[0]
             registry_id = latest_image['registryId']
-            region = config.cdk_env['region']
+            region = env.aws_region
             return f"{registry_id}.dkr.ecr.{region}.amazonaws.com/{repository_name}:{latest_image['imageTags'][0]}"
         else:
             return ""
