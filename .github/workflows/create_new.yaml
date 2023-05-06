@@ -46,7 +46,7 @@ jobs:
       # TODO:env名を動的に変更。今回の実行に依存するものはgithub actionsのenvに入れる
       - name: get .env file
         run: |
-          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/${{github.event.inputs.env_bucket_name}} .env 
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/${{github.event.inputs.env_object_name}} .env 
           echo "AWS_ACCESS_KEY_ID=${{env.AWS_ACCESS_KEY_ID}}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{env.AWS_SECRET_ACCESS_KEY}}" >> .env
 
