@@ -35,14 +35,14 @@ jobs:
           aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
           aws-region: ${{env.AWS_REGION}}
 
-      - name: get .env file
-        run: |
-          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/env .env
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v2
         with:
           python-version: 3.11
+
+      - name: get .env file
+        run: |
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/env .env
 
       - name: Run deploy script
         run: |
