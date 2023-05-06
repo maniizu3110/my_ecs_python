@@ -16,7 +16,7 @@ env = Env(
     github_repository_url=os.getenv("GITHUB_REPOSITORY_URL"),
     port=int(os.getenv("PORT")),
     build_path=os.getenv("BUILD_PATH"),
-    dockerfile_name=os.getenv("DOKERFILE_NAME"),
+    dockerfile_name=os.getenv("DOCKERFILE_NAME"),
     vpc_cidr=os.getenv("VPC_CIDR", "26.0.0.0/16"),
 
     rds_allocated_storage=int(os.getenv("RDS_ALLOCATED_STORAGE", 20)),

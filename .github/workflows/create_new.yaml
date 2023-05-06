@@ -43,6 +43,8 @@ jobs:
       - name: get .env file
         run: |
           aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/env .env
+          echo "AWS_ACCESS_KEY_ID=${{env.AWS_ACCESS_KEY_ID}}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{env.AWS_SECRET_ACCESS_KEY}}" >> .env
 
       - name: Run deploy script
         run: |
