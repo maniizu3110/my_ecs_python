@@ -18,3 +18,4 @@ tomli==2.0.1
 typeguard==2.13.3
 typing_extensions==4.4.0
 python-decouple==3.6
+boto3
