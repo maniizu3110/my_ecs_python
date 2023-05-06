@@ -2,6 +2,8 @@ import os
 import time
 import shutil
 from git import Repo, Actor, GitCommandError
+from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
+from services.utils.get_repository_name import get_repository_name
 from setup import config
 from requests.auth import HTTPBasicAuth
 import contextlib
@@ -43,11 +45,10 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
 
 
 def replaceFileContent(workflow_file, branch_name):
-    # TODO:動的に変更
-    # env_file_nameのロジック＝repositor_name+build_path.env
-    # ecrのロジック＝env.default_service_name+(env_file_nameのロジックから.envを消したもの）
+    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}.env"
+    repository = f"{env.default_service_name}-{convert_to_s3_object_name(env.build_path)}"
     replace_dict = get_aws_resource_info_for_worklfow(
-        workflow_file, branch_name, "backstage-sample-go.dev", "backstage-sample-dev-backstage-sample-go")
+        workflow_file, branch_name, env_file_name, repository)
     with open(workflow_file, "r") as f:
         content = f.read()
     for key, value in replace_dict.items():
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     parser.add_argument("--github-repository-url",
                         help="URL of the GitHub repository.",
                         default=env.github_repository_url)
-    
+
     args = parser.parse_args()
     add_workflow_to_github_repository(
         workflow_file=args.workflow_file, github_repository_url=args.github_repository_url)

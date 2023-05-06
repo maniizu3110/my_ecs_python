@@ -1,6 +1,8 @@
 import boto3
 import json
-from setup import config
+from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
+from services.utils.get_repository_name import get_repository_name
+from setup import config, env
 
 
 def get_rds_info(service_name) -> dict:
@@ -22,14 +24,14 @@ def get_rds_info(service_name) -> dict:
             return replace_dict
 
 
-def downloadEnvOfApp(bucket):
+def downloadEnvOfApp(bucket, env_file_name):
     s3 = boto3.resource('s3')
-    s3.Bucket(bucket).download_file('env', 'tmp.env')
+    s3.Bucket(bucket).download_file(env_file_name, 'tmp.env')
 
 
-def uploadEnvOfApp(bucket):
+def uploadEnvOfApp(bucket, env_file_name):
     s3 = boto3.resource('s3')
-    s3.Bucket(bucket).upload_file('tmp.env', 'env')
+    s3.Bucket(bucket).upload_file('tmp.env', env_file_name)
 
 
 def replaceEnvContentWithDict(replace_dict):
@@ -47,9 +49,10 @@ def replaceEnvContentWithDict(replace_dict):
 
 
 def replaceEnvInS3(replace_dict: dict, service_name: str):
-    downloadEnvOfApp(service_name)
+    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}.env"
+    downloadEnvOfApp(service_name, env_file_name)
     replaceEnvContentWithDict(replace_dict)
-    uploadEnvOfApp(service_name)
+    uploadEnvOfApp(service_name, env_file_name)
 
 
 def main():
