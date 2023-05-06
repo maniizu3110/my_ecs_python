@@ -19,8 +19,9 @@ def delete_s3_bucket(bucket_name):
         region_name=env.aws_region
     )
 
+
     bucket = boto3.resource('s3').Bucket(bucket_name)
-    bucket.objects.all().delete()
+    bucket.object_versions.delete()
 
     s3_client.delete_bucket(
         Bucket=bucket_name
