@@ -3,11 +3,11 @@
 set -e
 
 # when error occurred, run cleanup function
-function cleanup {
-    echo "An error occurred. Running 'cdk destroy' to clean up resources."
-    cdk destroy --force
-    python3 delete_resource.py
-}
+# function cleanup {
+#     echo "An error occurred. Running 'cdk destroy' to clean up resources."
+#     cdk destroy --force
+#     python3 delete_resource.py
+# }
 
 
 # Activate the virtual environment
@@ -22,7 +22,7 @@ cdk bootstrap
 
 cdk deploy --require-approval never
 
-trap cleanup ERR
+# trap cleanup ERR
 
 # replace app .env with created aws resources information
 # 対象のリポジトリとenvファイルを指定
