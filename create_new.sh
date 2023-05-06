@@ -5,6 +5,7 @@ set -e
 function cleanup {
     echo "An error occurred. Running 'cdk destroy' to clean up resources."
     cdk destroy --force
+    python3 delete_resource.py
 }
 
 
