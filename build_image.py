@@ -52,8 +52,10 @@ def get_owner_and_repo(github_repository_url):
     return owner_and_repo
 
 
-def clone(github_repository_url, repo_dir):
-    repo = Repo.clone_from(github_repository_url+".git", repo_dir)
+def clone(github_repository_url, repo_dir, github_token):
+    auth_repo_url = github_repository_url.replace(
+        "https://", f"https://{github_token}@") + ".git"
+    repo = Repo.clone_from(auth_repo_url+".git", repo_dir)
     print(f"Cloned repository: {github_repository_url}")
     return repo
 
@@ -147,7 +149,7 @@ def add_workflow_to_github_repository(workflow_file, github_repository_url):
 
     with temporary_directory("github_tmp") as repo_dir:
         # Clone the repository
-        repo = clone(github_repository_url, repo_dir)
+        repo = clone(github_repository_url, repo_dir, github_token)
 
         add_file(workflow_file, repo_dir, new_branch_name)
 
