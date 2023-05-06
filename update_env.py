@@ -2,7 +2,7 @@ import boto3
 import json
 from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
 from services.utils.get_repository_name import get_repository_name
-from setup import config, env
+from setup import BUCKET_PREFIX, config, env
 
 
 def get_rds_info(service_name) -> dict:
@@ -56,9 +56,8 @@ def replaceEnvInS3(replace_dict: dict, service_name: str):
 
 
 def main():
-    # TODO:service_nameの違いはwrapperで吸収する
     replace_dict = get_rds_info(config.pascal_service_name)
-    replaceEnvInS3(replace_dict, config.default_service_name)
+    replaceEnvInS3(replace_dict, f"{BUCKET_PREFIX}-{config.default_service_name}")
 
 
 if __name__ == "__main__":
