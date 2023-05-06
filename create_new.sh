@@ -7,7 +7,6 @@ function cleanup {
     cdk destroy --force
 }
 
-trap cleanup ERR
 
 # Activate the virtual environment
 python3 -m venv .venv
@@ -18,6 +17,8 @@ npm install -g aws-cdk
 
 # Install the dependencies
 pip install -r requirements.txt
+
+trap cleanup ERR
 
 cdk bootstrap
 
