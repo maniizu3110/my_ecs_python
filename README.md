@@ -42,3 +42,7 @@ cdk synth
 
 # TODO
 - インターフェースがgithub actionsなのか,.envのダウンロードなのか、どちらなのかを明確にする
+- delete処理のリファクタリング
+- ci/cdの実装の完了
+- テストの実装
+- create処理のリファクタリング
