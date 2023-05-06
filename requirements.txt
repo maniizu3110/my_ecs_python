@@ -21,3 +21,4 @@ python-decouple==3.6
 boto3
 gitpython
 requests
+PyGithub
