@@ -31,6 +31,7 @@ def replaceFileContent(workflow_file, branch_name):
     with open(workflow_file, "r") as f:
         content = f.read()
     for key, value in replace_dict.items():
+        print(f"Replacing {key} with {value} in {workflow_file}")
         content = content.replace(key, value)
     with open(workflow_file, "w") as f:
         f.write(content)
