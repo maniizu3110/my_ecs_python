@@ -14,6 +14,7 @@ env:
   BUILD_PATH: $BUILD_PATH
   ECS_CLUSTER_NAME: $ECS_CLUSTER_NAME
   ECS_SERVICE_NAME: $ECS_SERVICE_NAME
+  ENV_FILE_NAME: $ENV_FILE_NAME
   ECS_TASK_DEFINITION_NAME: $ECS_TASK_DEFINITION_NAME
 jobs:
   deploy:
@@ -35,7 +36,7 @@ jobs:
       - name: Build and Push Server Image
         working-directory: ${{ env.BUILD_PATH }}
         run: |
-          aws s3 cp s3://${{ env.ENV_S3_BUCKET }}/env .env
+          aws s3 cp s3://${{ env.ENV_S3_BUCKET }}/${{env.ENV_FILE_NAME}} .env
           docker build --platform linux/x86_64 -f ${{ env.DOCKERFILE_NAME }} -t ${{ env.ECR_REPOSITORY }} .
           docker tag ${{ env.ECR_REPOSITORY }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}

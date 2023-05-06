@@ -5,6 +5,46 @@ from services.config.ecs_service import ECSService
 from services.config.rds import RDSConfig
 from services.config.env import Env
 import os
+import boto3
+from services.utils.get_ecs_services_env import list_env_file_names_with_prefix
+
+
+def create_ecs_cluster_services():
+    ecr_arr = list_env_file_names_with_prefix(
+        env.default_service_name, env.default_service_name)
+    ecs_cluster_services = []
+    for ecr in ecr_arr:
+        image_url = get_latest_ecr_image_url(ecr)
+        if image_url:
+            ecs_cluster_services.append(
+                ECSService(
+                    name=ecr,
+                    image_url=image_url,
+                    domain_prefix="*",
+                    container_port=80,  # portはアプリケーションの.envから取得するように変更?
+                    desired_count=1,
+                    health_check_path="/health",
+                    healthy_http_codes="200",
+                    cpu=256,
+                    memory_limit_mib=512,
+                )
+            )
+
+
+def get_latest_ecr_image_url(repository_name: str) -> str:
+    ecr_client = boto3.client('ecr')
+    try:
+        response = ecr_client.describe_images(repositoryName=repository_name)
+        if len(response['imageDetails']) > 0:
+            latest_image = sorted(
+                response['imageDetails'], key=lambda x: x['imagePushedAt'], reverse=True)[0]
+            registry_id = latest_image['registryId']
+            region = config.cdk_env['region']
+            return f"{registry_id}.dkr.ecr.{region}.amazonaws.com/{repository_name}:{latest_image['imageTags'][0]}"
+        else:
+            return ""
+    except ecr_client.exceptions.RepositoryNotFoundException:
+        return ""
 
 
 env = Env(
@@ -45,7 +85,8 @@ config = Config(
     },
     default_service_name=env.default_service_name,
     pascal_service_name=env.pascal_service_name,
-    ecr_repository_names=[env.default_service_name],
+    ecr_repository_names=list_env_file_names_with_prefix(
+        env.default_service_name, env.default_service_name),
     s3_bucket_names=[],
     vpc_cidr=env.vpc_cidr,
     rds_config=RDSConfig(
@@ -58,17 +99,5 @@ config = Config(
         publicly_accessible=env.rds_publicly_accessible,
         parameters=env.rds_parameters,
     ),
-    cluster_services=[
-        ECSService(
-            name="backend",
-            domain_prefix="*",
-            image_url="",
-            container_port=env.port,
-            desired_count=1,
-            health_check_path="/health",
-            healthy_http_codes="200",
-            cpu=256,
-            memory_limit_mib=512,
-        ),
-    ]
+    cluster_services=create_ecs_cluster_services()
 )

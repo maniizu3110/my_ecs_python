@@ -16,24 +16,26 @@ WORK_BRANCH_NAME = "feature/add-file-from-backstage"
 WORKFLOW_FILE = ".github/workflows/build_template.yaml"
 
 
-def get_aws_resource_info_for_worklfow(workflow_name, branch_name) -> dict:
+def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name, repository_name) -> dict:
     if "build_template" in workflow_name:
         return {
             "$AWS_REGION": env.aws_region,
-            "$ECR_REPOSITORY": env.default_service_name,
+            "$ECR_REPOSITORY": repository_name,
             "$ENV_S3_BUCKET": env.default_service_name,
             "$DOCKERFILE_NAME": env.dockerfile_name,
             "$BUILD_PATH": env.build_path,
             "$BRANCH_NAME":  branch_name,
+            "$ENV_FILE_NAME": env_file_name,
         }
     elif "deploy_template" in workflow_name:
         return {
             "$AWS_REGION": env.aws_region,
-            "$ECR_REPOSITORY": env.default_service_name,
+            "$ECR_REPOSITORY": repository_name,
             "$ENV_S3_BUCKET": env.default_service_name,
             "$DOCKERFILE_NAME": env.dockerfile_name,
             "$BUILD_PATH": env.build_path,
             "$BRANCH_NAME":  branch_name,
+            "$ENV_FILE_NAME": env_file_name,
             "$ECS_CLUSTER_NAME": env.default_service_name,
             "$ECS_SERVICE_NAME": env.default_service_name,
             "$ECS_TASK_DEFINITION_NAME": get_task_definition_names(env.default_service_name, env.default_service_name)[0],
@@ -41,8 +43,9 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name) -> dict:
 
 
 def replaceFileContent(workflow_file, branch_name):
+    # TODO:動的に変更
     replace_dict = get_aws_resource_info_for_worklfow(
-        workflow_file, branch_name)
+        workflow_file, branch_name, "eighty-and-co-backstage-sample-dev", "backstage-sample-go")
     with open(workflow_file, "r") as f:
         content = f.read()
     for key, value in replace_dict.items():
