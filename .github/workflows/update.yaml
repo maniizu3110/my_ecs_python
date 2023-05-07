@@ -1,0 +1,57 @@
+name: Create new ecs
+
+on:
+  workflow_dispatch:
+    inputs:
+      env_bucket_name:
+        description: "s3 env bucket name"
+        required: true
+      env_object_name:
+        description: "s3 env object name"
+        required: true
+      aws_access_key_id:
+        description: "AWS Access Key ID"
+        required: false
+      aws_secret_access_key:
+        description: "AWS Secret Access Key"
+        required: false
+      aws_region:
+        description: "AWS Region"
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ github.event.inputs.aws_access_key_id || secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.aws_secret_access_key || secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ github.event.inputs.aws_region || 'ap-northeast-1' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{env.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
+          aws-region: ${{env.AWS_REGION}}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      # TODO:env名を動的に変更。今回の実行に依存するものはgithub actionsのenvに入れる
+      - name: get .env file
+        run: |
+          aws s3 cp s3://${{github.event.inputs.env_bucket_name}}-backstage/${{github.event.inputs.env_object_name}} .env 
+          echo "AWS_ACCESS_KEY_ID=${{env.AWS_ACCESS_KEY_ID}}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{env.AWS_SECRET_ACCESS_KEY}}" >> .env
+
+      - name: Run deploy script
+        run: |
+          export PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          chmod +x update.sh
+          ./update.sh
