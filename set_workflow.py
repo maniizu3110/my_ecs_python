@@ -9,7 +9,7 @@ from requests.auth import HTTPBasicAuth
 import contextlib
 from github import Github
 from setup import env
-from services.utils.get_ecs_task_definition_name import get_task_definition_names
+from services.utils.get_ecs_task_definition_name import get_task_definition_name
 import argparse
 
 WORK_BRANCH_NAME = "feature/add-file-from-backstage"
@@ -41,17 +41,17 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
             "$ENV_S3_BUCKET": f"{BUCKET_PREFIX}-{env.default_service_name}",
             "$DOCKERFILE_NAME": env.dockerfile_name,
             "$BUILD_PATH": env.build_path,
-            "$BRANCH_NAME":  branch_name,
+            "$BRANCH_NAME":  set_base_branch(),
             "$ENV_FILE_NAME": env_file_name,
             "$ECS_CLUSTER_NAME": env.default_service_name,
-            "$ECS_SERVICE_NAME": env.default_service_name,
-            "$ECS_TASK_DEFINITION_NAME": get_task_definition_names(env.default_service_name, f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}")[0],
+            "$ECS_SERVICE_NAME": repository_name,
+            "$ECS_TASK_DEFINITION_NAME": get_task_definition_name(env.default_service_name, f"{env.env}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"),
         }
 
 
 def replaceFileContent(workflow_file, branch_name):
     env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}.env"
-    repository = f"{env.default_service_name}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"
+    repository = f"{env.env}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"
     replace_dict = get_aws_resource_info_for_worklfow(
         workflow_file, branch_name, env_file_name, repository)
     with open(workflow_file, "r") as f:

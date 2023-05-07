@@ -1,7 +1,7 @@
 import boto3
 
 
-def get_task_definition_names(cluster_name, service_name):
+def get_task_definition_name(cluster_name, service_name):
     # クライアントを作成
     ecs_client = boto3.client("ecs")
 

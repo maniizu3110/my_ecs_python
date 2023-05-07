@@ -12,8 +12,8 @@ BUCKET_PREFIX = "eighty-and-co"
 
 
 def create_ecs_cluster_services():
-    ecr_arr = list_env_file_names(
-        f"{BUCKET_PREFIX}-{env.default_service_name}")
+    ecr_arr = list_env_file_names_with_prefix(
+        f"{BUCKET_PREFIX}-{env.default_service_name}", env.env)
     ecs_cluster_services = []
     for ecr in ecr_arr:
         image_url = get_latest_ecr_image_url(ecr)
@@ -89,7 +89,7 @@ config = Config(
     default_service_name=env.default_service_name,
     pascal_service_name=env.pascal_service_name,
     ecr_repository_names=list_env_file_names_with_prefix(
-        f"{BUCKET_PREFIX}-{env.default_service_name}", env.default_service_name),
+        f"{BUCKET_PREFIX}-{env.default_service_name}", env.env),
     s3_bucket_names=[],
     vpc_cidr=env.vpc_cidr,
     rds_config=RDSConfig(
