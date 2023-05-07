@@ -6,27 +6,44 @@ from services.config.rds import RDSConfig
 from services.config.env import Env
 import os
 import boto3
-from services.utils.get_ecs_services_env import list_env_file_names, list_env_file_names_with_prefix
+from services.utils.get_ecs_services_env import get_file_content, list_env_file_names_with_prefix, list_env_files
 
 BUCKET_PREFIX = "eighty-and-co"
 
 
+def remove_env_suffix(env_file_name):
+    return env_file_name.replace(".env", "")
+
+
+def get_env_content_as_dict(bucket_name, env_file_name):
+    env_content = get_file_content(bucket_name, env_file_name)
+    env_content_as_dict = {}
+    for line in env_content.splitlines():
+        key, value = line.split("=")
+        env_content_as_dict[key] = value
+    return env_content_as_dict
+
+
 def create_ecs_cluster_services():
-    ecr_arr = list_env_file_names_with_prefix(
-        f"{BUCKET_PREFIX}-{env.default_service_name}", env.env)
+    env_bucket_name = f"{BUCKET_PREFIX}-{env.default_service_name}-backstage"
+    env_file_names = list_env_files(env_bucket_name)
     ecs_cluster_services = []
-    for ecr in ecr_arr:
-        image_url = get_latest_ecr_image_url(ecr)
+    for env_file_name in env_file_names:
+        print(env_file_name)
+        ecr_name = f"{env.env}-{remove_env_suffix(env_file_name)}"
+        image_url = get_latest_ecr_image_url(
+            ecr_name)
+        env_dict = get_env_content_as_dict(env_bucket_name, env_file_name)
         if image_url:
             ecs_cluster_services.append(
                 ECSService(
-                    name=ecr,
+                    name=ecr_name,
                     image_url=image_url,
                     domain_prefix="*",
-                    container_port=80,  # portはアプリケーションの.envから取得するように変更?
+                    container_port=env_dict['PORT'],
                     desired_count=1,
-                    health_check_path="/health",
-                    healthy_http_codes="200",
+                    health_check_path=env_dict['HEALTH_CHECK_PATH'],
+                    healthy_http_codes=env_dict['HEALTH_CHECK_CODES'],
                     cpu=256,
                     memory_limit_mib=512,
                 )

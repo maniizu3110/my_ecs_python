@@ -32,7 +32,7 @@ def delete_s3_bucket(bucket_name):
 
 
 def main():
-    repository = f"{env.default_service_name}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"
+    repository = f"{env.env}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"
     bucket_name = f"{BUCKET_PREFIX}-{env.default_service_name}"
     delete_ecr_repository(repository)
     delete_s3_bucket(bucket_name)
