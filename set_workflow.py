@@ -136,7 +136,7 @@ def checkout(repo, new_branch_name):
     print(f"Checked out {new_branch_name} branch")
 
 
-def set_workflow_secret(github_token):
+def set_workflow_secret_to_github_repo(github_token):
     secrets = {
         "AWS_ACCESS_KEY_ID": env.aws_access_key_id,
         "AWS_SECRET_ACCESS_KEY": env.aws_secret_access_key,
@@ -175,6 +175,8 @@ def add_workflow_to_github_repository(workflow_file, github_repository_url):
     new_branch_name = WORK_BRANCH_NAME+"-"+str(int(time.time()))
 
     with temporary_directory("github_tmp") as repo_dir:
+        set_workflow_secret_to_github_repo(github_token)
+
         repo = clone(github_repository_url, repo_dir, github_token)
 
         add_file(workflow_file, repo_dir, new_branch_name)
@@ -182,7 +184,6 @@ def add_workflow_to_github_repository(workflow_file, github_repository_url):
         checkout(repo, new_branch_name)
 
         commit(repo, workflow_file, new_branch_name)
-        set_workflow_secret(github_token)
 
         push(repo, new_branch_name)
 
