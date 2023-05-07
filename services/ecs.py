@@ -115,7 +115,7 @@ class EcsFargate:
             fargate_service = ecs.FargateService(
                 self.stack,
                 self.service_name+cluster_service.name,
-                service_name=self.service_name+cluster_service.name,
+                service_name=cluster_service.name,
                 cluster=self.cluster,
                 desired_count=cluster_service.desired_count,
                 task_definition=fargate_task_definition,

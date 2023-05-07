@@ -1,6 +1,6 @@
 import boto3
 import json
-from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
+from services.utils.convert_build_path_to_s3 import convert_path_to_object_name
 from services.utils.get_repository_name import get_repository_name
 from setup import BUCKET_PREFIX, config, env
 
@@ -49,7 +49,7 @@ def replaceEnvContentWithDict(replace_dict):
 
 
 def replaceEnvInS3(replace_dict: dict, service_name: str):
-    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}.env"
+    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}.env"
     downloadEnvOfApp(service_name, env_file_name)
     replaceEnvContentWithDict(replace_dict)
     uploadEnvOfApp(service_name, env_file_name)
@@ -57,7 +57,8 @@ def replaceEnvInS3(replace_dict: dict, service_name: str):
 
 def main():
     replace_dict = get_rds_info(config.pascal_service_name)
-    replaceEnvInS3(replace_dict, f"{BUCKET_PREFIX}-{config.default_service_name}")
+    replaceEnvInS3(
+        replace_dict, f"{BUCKET_PREFIX}-{config.default_service_name}")
 
 
 if __name__ == "__main__":

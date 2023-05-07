@@ -2,7 +2,7 @@ import os
 import time
 import shutil
 from git import Repo, Actor, GitCommandError
-from services.utils.convert_build_path_to_s3 import convert_to_s3_object_name
+from services.utils.convert_build_path_to_s3 import convert_path_to_object_name
 from services.utils.get_repository_name import get_repository_name
 from setup import BUCKET_PREFIX, config
 from requests.auth import HTTPBasicAuth
@@ -45,13 +45,13 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
             "$ENV_FILE_NAME": env_file_name,
             "$ECS_CLUSTER_NAME": env.default_service_name,
             "$ECS_SERVICE_NAME": env.default_service_name,
-            "$ECS_TASK_DEFINITION_NAME": get_task_definition_names(env.default_service_name, env.default_service_name)[0],
+            "$ECS_TASK_DEFINITION_NAME": get_task_definition_names(env.default_service_name, f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}")[0],
         }
 
 
 def replaceFileContent(workflow_file, branch_name):
-    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}.env"
-    repository = f"{env.default_service_name}-{get_repository_name(env.github_repository_url)}-{convert_to_s3_object_name(env.build_path)}"
+    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}.env"
+    repository = f"{env.default_service_name}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"
     replace_dict = get_aws_resource_info_for_worklfow(
         workflow_file, branch_name, env_file_name, repository)
     with open(workflow_file, "r") as f:

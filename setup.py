@@ -6,20 +6,17 @@ from services.config.rds import RDSConfig
 from services.config.env import Env
 import os
 import boto3
-from services.utils.get_ecs_services_env import list_env_file_names_with_prefix
+from services.utils.get_ecs_services_env import list_env_file_names, list_env_file_names_with_prefix
 
 BUCKET_PREFIX = "eighty-and-co"
 
 
 def create_ecs_cluster_services():
-    ecr_arr = list_env_file_names_with_prefix(
-        f"{BUCKET_PREFIX}-{env.default_service_name}", env.default_service_name)
+    ecr_arr = list_env_file_names(
+        f"{BUCKET_PREFIX}-{env.default_service_name}")
     ecs_cluster_services = []
     for ecr in ecr_arr:
         image_url = get_latest_ecr_image_url(ecr)
-        # ecrが32文字以上の場合は、前半にはるenv.default_service_nameを削除する
-        if len(ecr) > 32:
-            ecr = ecr.replace(env.default_service_name+"-", "")
         if image_url:
             ecs_cluster_services.append(
                 ECSService(
