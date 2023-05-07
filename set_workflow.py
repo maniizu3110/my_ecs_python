@@ -12,10 +12,15 @@ from setup import env
 from services.utils.get_ecs_task_definition_name import get_task_definition_names
 import argparse
 
-# DEFAULT_BRANCH = "develop"
-DEFAULT_BRANCH = "main"
 WORK_BRANCH_NAME = "feature/add-file-from-backstage"
 WORKFLOW_FILE = ".github/workflows/build_template.yaml"
+
+
+def set_base_branch():
+    if env.env == "dev":
+        return "develop"
+    elif env.env == "prod":
+        return "main"
 
 
 def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name, repository_name) -> dict:
@@ -111,7 +116,7 @@ def create_pr(repo, github_token, new_branch_name, base_branch_name, github_repo
     # Create a pull request using the PyGithub library
     github = Github(github_token)
     repo = github.get_repo(get_owner_and_repo(github_repository_url))
-    base_branch_name = DEFAULT_BRANCH
+    base_branch_name = set_base_branch()
 
     try:
         pr = repo.create_pull(
@@ -170,7 +175,6 @@ def add_workflow_to_github_repository(workflow_file, github_repository_url):
     new_branch_name = WORK_BRANCH_NAME+"-"+str(int(time.time()))
 
     with temporary_directory("github_tmp") as repo_dir:
-        # Clone the repository
         repo = clone(github_repository_url, repo_dir, github_token)
 
         add_file(workflow_file, repo_dir, new_branch_name)
@@ -183,7 +187,7 @@ def add_workflow_to_github_repository(workflow_file, github_repository_url):
         push(repo, new_branch_name)
 
         create_pr(repo, github_token, new_branch_name,
-                  DEFAULT_BRANCH, github_repository_url, workflow_file)
+                  set_base_branch(), github_repository_url, workflow_file)
 
         wait_for_github_actions_to_finish(new_branch_name)
 
