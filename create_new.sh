@@ -2,7 +2,7 @@
 
 set -e
 
-when error occurred, run cleanup function
+# when error occurred, run cleanup function
 function cleanup {
     echo "An error occurred. Running 'cdk destroy' to clean up resources."
     cdk destroy --force
