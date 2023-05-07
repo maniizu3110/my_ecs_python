@@ -43,7 +43,7 @@ jobs:
       - name: Update ECS Service
         run: |
           NEW_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_NAME }} --region ${{ env.AWS_RESION }})
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} --region ${{ env.AWS_RESION }})
           NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
           aws ecs register-task-definition --region ${{ env.AWS_RESION }} --cli-input-json "$NEW_TASK_DEFINITION"
-          aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --task-definition ${{ env.ECS_TASK_NAME }} --force-new-deployment
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} --force-new-deployment
