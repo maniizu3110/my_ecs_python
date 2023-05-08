@@ -31,6 +31,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Mask AWS credentials
+        run: |
+          echo "::add-mask::${{env.AWS_ACCESS_KEY_ID}}"
+          echo "::add-mask::${{env.AWS_SECRET_ACCESS_KEY}}"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
