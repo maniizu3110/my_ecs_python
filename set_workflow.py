@@ -4,7 +4,7 @@ import shutil
 from git import Repo, Actor, GitCommandError
 from services.utils.convert_build_path_to_s3 import convert_path_to_object_name
 from services.utils.get_repository_name import get_repository_name
-from setup import BUCKET_PREFIX, config
+from setup import BUCKET_PREFIX
 from requests.auth import HTTPBasicAuth
 import contextlib
 from github import Github
@@ -45,7 +45,7 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
             "$ENV_FILE_NAME": env_file_name,
             "$ECS_CLUSTER_NAME": env.default_service_name,
             "$ECS_SERVICE_NAME": repository_name,
-            "$ECS_TASK_DEFINITION_NAME": get_task_definition_name(env.default_service_name, f"{env.env}-{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}"),
+            "$ECS_TASK_DEFINITION_NAME": get_task_definition_name(env.default_service_name, f"{env.env}-{get_repository_name(env.github_repository_url)}{convert_path_to_object_name(env.build_path)}"),
         }
 
 
