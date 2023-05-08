@@ -29,7 +29,6 @@ def create_ecs_cluster_services():
     env_file_names = list_env_files(env_bucket_name)
     ecs_cluster_services = []
     for env_file_name in env_file_names:
-        print(env_file_name)
         ecr_name = f"{env.env}-{remove_env_suffix(env_file_name)}"
         image_url = get_latest_ecr_image_url(
             ecr_name)
