@@ -9,6 +9,13 @@ def delete_ecr_repository(repository):
         'ecr',
         region_name=env.aws_region
     )
+
+    try:
+        ecr_client.describe_repositories(repositoryNames=[repository])
+    except ecr_client.exceptions.RepositoryNotFoundException:
+        print(f"ECR repository not found: {repository}")
+        return
+
     ecr_client.delete_repository(
         repositoryName=repository,
         force=True
@@ -22,13 +29,23 @@ def delete_s3_bucket(bucket_name):
         region_name=env.aws_region
     )
 
-    bucket = boto3.resource('s3').Bucket(bucket_name)
-    bucket.object_versions.delete()
+    s3 = boto3.resource('s3')
+    bucket_exists = False
 
-    s3_client.delete_bucket(
-        Bucket=bucket_name
-    )
-    print(f"Deleted S3 bucket: {bucket_name}")
+    for bucket in s3.buckets.all():
+        if bucket.name == bucket_name:
+            bucket_exists = True
+            break
+    if bucket_exists:
+        bucket = s3.Bucket(bucket_name)
+        bucket.object_versions.delete()
+
+        s3_client.delete_bucket(
+            Bucket=bucket_name
+        )
+        print(f"Deleted S3 bucket: {bucket_name}")
+    else:
+        print(f"S3 bucket not found: {bucket_name}")
 
 
 def main():

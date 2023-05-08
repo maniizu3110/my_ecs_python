@@ -2,13 +2,19 @@ import boto3
 
 
 def list_env_files(bucket_name):
-    # クライアントを作成
     s3_client = boto3.client('s3')
 
-    # 指定されたバケット内のオブジェクトをリストアップ
+    # Check if the specified bucket exists
+    try:
+        s3_client.list_objects(Bucket=bucket_name)
+    except s3_client.exceptions.NoSuchBucket:
+        print(f"S3 bucket not found: {bucket_name}")
+        return []
+
+    # List objects in the specified bucket
     objects = s3_client.list_objects(Bucket=bucket_name)
 
-    # オブジェクトのキー（ファイル名）から.envファイルをフィルタリング
+    # Filter .env files from the object keys (file names)
     env_files = [obj['Key']
                  for obj in objects['Contents'] if obj['Key'].endswith('.env')]
 
