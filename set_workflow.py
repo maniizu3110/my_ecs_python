@@ -198,9 +198,11 @@ if __name__ == "__main__":
         description="Add a workflow file to a GitHub repository.")
     parser.add_argument(
         "--workflow-file", help="Path to the workflow file.", default=WORKFLOW_FILE)
-    parser.add_argument("--github-repository-url",
-                        help="URL of the GitHub repository.",
-                        default=env.github_repository_url)
+    parser.add_argument(
+        "--github-repository-url",
+        help="URL of the GitHub repository.",
+        default=env.github_repository_url
+    )
 
     args = parser.parse_args()
     add_workflow_to_github_repository(
