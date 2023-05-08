@@ -49,7 +49,8 @@ def replaceEnvContentWithDict(replace_dict):
 
 
 def replaceEnvInS3(replace_dict: dict, service_name: str):
-    env_file_name = f"{get_repository_name(env.github_repository_url)}-{convert_path_to_object_name(env.build_path)}.env"
+    env_file_name = f"{get_repository_name(env.github_repository_url)}{convert_path_to_object_name(env.build_path)}.env"
+
     downloadEnvOfApp(service_name, env_file_name)
     replaceEnvContentWithDict(replace_dict)
     uploadEnvOfApp(service_name, env_file_name)
