@@ -8,7 +8,6 @@ from services.s3 import S3Buckets
 from services.config.config import Config
 from services._lambda import BasicAuth
 from setup import config
-import boto3
 
 class MyServiceStack:
     def __init__(self, app: App, config: Config):

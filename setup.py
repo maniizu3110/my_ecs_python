@@ -77,22 +77,13 @@ env = Env(
     port=int(os.getenv("PORT")),
     build_path=os.getenv("BUILD_PATH"),
     dockerfile_name=os.getenv("DOCKERFILE_NAME"),
-    vpc_cidr=os.getenv("VPC_CIDR", "26.0.0.0/16"),
+    database_kind=os.getenv("DATABASE_KIND", "mysql"),
+    vpc_cidr=os.getenv("VPC_CIDR", "26.0.0.0/16"),  # TODO空いてなければ自動で空いてるところを探す
 
     rds_allocated_storage=int(os.getenv("RDS_ALLOCATED_STORAGE", 20)),
     rds_instance_type=os.getenv("RDS_INSTANCE_TYPE", "t3.micro"),
     rds_deletion_protection=os.getenv("RDS_DELETION_PROTECTION", False),
     rds_publicly_accessible=os.getenv("RDS_PUBLICLY_ACCESSIBLE", True),
-    rds_parameters={
-        'character_set_client': 'utf8mb4',
-        'character_set_connection': 'utf8mb4',
-        'character_set_database': 'utf8mb4',
-        'character_set_filesystem': 'utf8mb4',
-        'character_set_results': 'utf8mb4',
-        'character_set_server': 'utf8mb4',
-        'collation_connection': 'utf8mb4_unicode_ci',
-        'collation_server': 'utf8mb4_unicode_ci',
-    }
 )
 
 
@@ -110,13 +101,11 @@ config = Config(
     vpc_cidr=env.vpc_cidr,
     rds_config=RDSConfig(
         database_name=env.default_service_name,
+        kind=env.database_kind,
         allocated_storage=env.rds_allocated_storage,
         instance_type=ec2.InstanceType(env.rds_instance_type),
-        engine=rds.DatabaseInstanceEngine.mysql(
-            version=rds.MysqlEngineVersion.VER_5_7_33),
         deletion_protection=env.rds_deletion_protection,
         publicly_accessible=env.rds_publicly_accessible,
-        parameters=env.rds_parameters,
     ),
     cluster_services=create_ecs_cluster_services()
 )

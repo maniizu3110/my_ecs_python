@@ -17,9 +17,9 @@ def get_rds_info(service_name) -> dict:
 
             replace_dict = {
                 "$DB_HOST": secret_value['host'],
-                "$DB_USER": secret_value['username'],
+                "$DB_USERNAME": secret_value['username'],
                 "$DB_PASSWORD": secret_value['password'],
-                "$DB_NAME": secret_value['dbname'],
+                "$DB_DATABASE": secret_value['dbname'],
             }
             return replace_dict
 

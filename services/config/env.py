@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-from services.utils.get_repository_name import get_repository_name, change_to_pascal_case, change_to_camel_case
+from services.utils.get_repository_name import change_to_pascal_case, change_to_camel_case
 
 
 load_dotenv()
@@ -19,12 +19,11 @@ class Env:
         build_path: str,
         dockerfile_name: str,
         vpc_cidr: str,
+        database_kind: str,
         rds_allocated_storage: int,
         rds_instance_type: str,
         rds_deletion_protection: bool,
         rds_publicly_accessible: bool,
-        rds_parameters: dict,
-
     ) -> None:
         self.aws_access_key_id: str = aws_access_key_id
         self.aws_secret_access_key: str = aws_secret_access_key
@@ -34,6 +33,7 @@ class Env:
         self.port: int = port
         self.build_path: str = build_path
         self.dockerfile_name: str = dockerfile_name
+        self.database_kind: str = database_kind
         self.pascal_service_name: str = change_to_pascal_case(
             service_name)+change_to_camel_case(env)
         self.default_service_name: str = service_name+"-"+env
@@ -42,4 +42,3 @@ class Env:
         self.rds_instance_type: str = rds_instance_type
         self.rds_deletion_protection: bool = rds_deletion_protection
         self.rds_publicly_accessible: bool = rds_publicly_accessible
-        self.rds_parameters: dict = rds_parameters

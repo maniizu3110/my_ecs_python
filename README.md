@@ -39,28 +39,29 @@ cdk synth
 - cdk diff` デプロイされたスタックと現在の状態を比較する
 - `cdk docs` CDK のドキュメントを開く
 
-
 ## TODO
 
-- インターフェースがgithub actionsなのか,.envのダウンロードなのか、どちらなのかを明確にする
+- backstage コンテナが動くようにする
+- postgres対応
 - リファクタリング
-- redisも指定できるようにする
-- codePipelineでのデプロイ（ヘルスチェックが通らなければ失敗とする）
-- ヘルスチェックに使用する情報を.envから受け取る
-- ドメインが決まった時にtls対応
+- redis
+- メール
+- ドメイン取得
+- codePipeline でのデプロイ（ヘルスチェックが通らなければ失敗とする）
+- ヘルスチェックに使用する情報を.env から受け取る
+- ドメインが決まった時に tls 対応
 - ベーシック認証対応
 - 通知設定
 - アラート設定
-- 各アプリケーション用のテンプレート用Dockerfileの提供
+- 各アプリケーション用のテンプレート用 Dockerfile の提供
 
+## 長期 TODO
 
-## 長期TODO
-
-- next,react,laravel,goのスタートアッププロジェクトを作成するテンプレートの作成
-  - eslint,prettierの設定,huskyの設定,versionの指定など
-  - docker-composeの設定- ビルドが通るかの確認するためのgithub actionsの設定
+- next,react,laravel,go のスタートアッププロジェクトを作成するテンプレートの作成
+  - eslint,prettier の設定,husky の設定,version の指定など
+  - docker-compose の設定- ビルドが通るかの確認するための github actions の設定
   - セキュリティテストの自動化
   - インフラ定義に問題がないか
-  - swaggerの定義から、エンドポイントごとにテストを実行する
+  - swagger の定義から、エンドポイントごとにテストを実行する
 - ごく簡単な負荷テスト
-  - swaggerの定義から、エンドポイントごとにテストを実行する
+  - swagger の定義から、エンドポイントごとにテストを実行する
