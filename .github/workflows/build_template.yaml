@@ -33,6 +33,7 @@ jobs:
       - name: Build and Push Server Image
         working-directory: ${{ env.BUILD_PATH }}
         run: |
+$PRE_BUILD_SCRIPT
           aws s3 cp s3://${{ env.ENV_S3_BUCKET }}/${{env.ENV_FILE_NAME}} .env
           docker build --platform linux/x86_64 -f ${{ env.DOCKERFILE_NAME }} -t ${{ env.ECR_REPOSITORY }} .
           docker tag ${{ env.ECR_REPOSITORY }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}

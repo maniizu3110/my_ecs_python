@@ -33,6 +33,7 @@ def get_aws_resource_info_for_worklfow(workflow_name, branch_name, env_file_name
             "$BUILD_PATH": env.build_path,
             "$BRANCH_NAME":  branch_name,
             "$ENV_FILE_NAME": env_file_name,
+            "$PRE_BUILD_SCRIPT": env.pre_build_script,
         }
     elif "deploy_template" in workflow_name:
         return {

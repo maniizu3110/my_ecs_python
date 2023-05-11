@@ -19,7 +19,10 @@ class Env:
         build_path: str,
         dockerfile_name: str,
         vpc_cidr: str,
+        pre_build_script: str,
         database_kind: str,
+        health_check_path: str,
+        health_check_codes: str,
         rds_allocated_storage: int,
         rds_instance_type: str,
         rds_deletion_protection: bool,
@@ -34,10 +37,13 @@ class Env:
         self.build_path: str = build_path
         self.dockerfile_name: str = dockerfile_name
         self.database_kind: str = database_kind
+        self.health_check_path: str = health_check_path
+        self.health_check_codes: str = health_check_codes
         self.pascal_service_name: str = change_to_pascal_case(
             service_name)+change_to_camel_case(env)
         self.default_service_name: str = service_name+"-"+env
         self.vpc_cidr: str = vpc_cidr
+        self.pre_build_script: str = pre_build_script
         self.rds_allocated_storage: int = rds_allocated_storage
         self.rds_instance_type: str = rds_instance_type
         self.rds_deletion_protection: bool = rds_deletion_protection
