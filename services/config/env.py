@@ -17,6 +17,7 @@ class Env:
         github_repository_url: str,
         port: int,
         build_path: str,
+        domain: str,
         dockerfile_name: str,
         vpc_cidr: str,
         pre_build_script: str,
@@ -35,6 +36,7 @@ class Env:
         self.github_repository_url: str = github_repository_url
         self.port: int = port
         self.build_path: str = build_path
+        self.domain: str = domain
         self.dockerfile_name: str = dockerfile_name
         self.database_kind: str = database_kind
         self.health_check_path: str = health_check_path

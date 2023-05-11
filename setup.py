@@ -6,6 +6,8 @@ from services.config.rds import RDSConfig
 from services.config.env import Env
 import os
 import boto3
+from services.utils.find_available_cidr import find_available_cidr_block
+from services.utils.get_domain_detail import get_domain_and_subdomain
 from services.utils.get_ecs_services_env import get_file_content, list_env_file_names_with_prefix, list_env_files
 from services.utils.load_script_from_env import load_pre_build_script
 
@@ -16,24 +18,37 @@ def remove_env_suffix(env_file_name):
     return env_file_name.replace(".env", "")
 
 
+def get_env_content_as_dict(bucket_name, env_file_name):
+    env_content = get_file_content(bucket_name, env_file_name)
+    env_content_as_dict = {}
+    for line in env_content.splitlines():
+        if "=" in line:
+            # Split only once, in case value contains "="
+            key, value = line.split("=", 1)
+            env_content_as_dict[key] = value
+    return env_content_as_dict
+
+
 def create_ecs_cluster_services():
     env_bucket_name = f"{BUCKET_PREFIX}-{env.default_service_name}-backstage"
     env_file_names = list_env_files(env_bucket_name)
     ecs_cluster_services = []
     for env_file_name in env_file_names:
         ecr_name = f"{env.env}-{remove_env_suffix(env_file_name)}"
-        image_url = get_latest_ecr_image_url(
-            ecr_name)
+        image_url = get_latest_ecr_image_url(ecr_name)
+        env_dict = get_env_content_as_dict(env_bucket_name, env_file_name)
+        subdomain = get_domain_and_subdomain(env_dict['DOMAIN'])[
+            'subdomain'] if "DOMAIN" in env_dict else None
         if image_url:
             ecs_cluster_services.append(
                 ECSService(
                     name=ecr_name,
                     image_url=image_url,
-                    domain_prefix="*",
-                    container_port=env.port,
+                    domain_prefix=subdomain,
+                    container_port=env_dict['PORT'],
                     desired_count=1,
-                    health_check_path=env.health_check_path,
-                    healthy_http_codes=env.health_check_codes,
+                    health_check_path=env_dict['HEALTH_CHECK_PATH'],
+                    healthy_http_codes=env_dict['HEALTH_CHECK_CODES'],
                     cpu=256,
                     memory_limit_mib=512,
                 )
@@ -68,8 +83,9 @@ env = Env(
     port=int(os.getenv("PORT")),
     build_path=os.getenv("BUILD_PATH"),
     dockerfile_name=os.getenv("DOCKERFILE_NAME"),
+    domain=os.getenv("DOMAIN"),
     database_kind=os.getenv("DATABASE_KIND", "mysql"),
-    vpc_cidr=os.getenv("VPC_CIDR", "26.0.0.0/16"), # TODO: 空いてなければ自動で空いてるところを探す
+    vpc_cidr=os.getenv("VPC_CIDR", find_available_cidr_block()),
     pre_build_script=load_pre_build_script(".env"),
     health_check_path=os.getenv("HEALTH_CHECK_PATH", "/"),
     health_check_codes=os.getenv("HEALTH_CHECK_CODES", "200-499"),
@@ -87,6 +103,7 @@ config = Config(
         'account': os.getenv("CDK_DEFAULT_ACCOUNT"),
         'region': os.getenv("AWS_REGION")
     },
+    domain=env.domain,
     default_service_name=env.default_service_name,
     pascal_service_name=env.pascal_service_name,
     ecr_repository_names=list_env_file_names_with_prefix(

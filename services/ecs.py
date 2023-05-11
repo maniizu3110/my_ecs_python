@@ -13,6 +13,7 @@ from aws_cdk import (
 )
 
 from services.config.ecs_service import ECSService
+from services.utils.get_domain_detail import get_domain_and_subdomain
 
 
 class EcsFargate:
@@ -24,6 +25,8 @@ class EcsFargate:
         self.service_names = service_name
         self.cluster_services: List[ECSService] = cluster_services
         self.fargate_services = []
+        self.domain = domain
+        self.main_domain, self.subdomain = get_domain_and_subdomain(domain)
 
         # Create ECS cluster
         self.cluster = ecs.Cluster(
@@ -53,24 +56,7 @@ class EcsFargate:
             vpc=self.vpc,
             internet_facing=True
         )
-        # TODO:ドメインが入力された時、コメントアウト部分が実装されるようにする
-        # certificate = acm.Certificate(
-        #     self.stack,
-        #     self.service_name+"Certificate",
-        #     domain_name="*."+self.domain,
-        #     validation=acm.CertificateValidation.from_dns(),
-        # )
 
-        # listener = self.lb.add_listener(
-        #     self.service_name+"Listener",
-        #     port=443,
-        #     certificates=[elbv2.ListenerCertificate.from_certificate_manager(
-        #         acm_certificate=certificate,
-        #     )],
-        #     protocol=elbv2.ApplicationProtocol.HTTPS,
-        #     open=True
-        # )
-        # listener for port 80
         listener = self.lb.add_listener(
             self.service_name+"Listener",
             port=80,
@@ -78,12 +64,30 @@ class EcsFargate:
             open=True
         )
 
-        # # Route 53 A record
-        # zone = route53.HostedZone.from_lookup(
-        #     self.stack,
-        #     self.service_name+"HostedZone",
-        #     domain_name=self.domain
-        # )
+        if self.domain:
+            certificate = acm.Certificate(
+                self.stack,
+                self.service_name+"Certificate",
+                domain_name="*."+self.domain,
+                validation=acm.CertificateValidation.from_dns(),
+            )
+
+            listener = self.lb.add_listener(
+                self.service_name+"Listener",
+                port=443,
+                certificates=[elbv2.ListenerCertificate.from_certificate_manager(
+                    acm_certificate=certificate,
+                )],
+                protocol=elbv2.ApplicationProtocol.HTTPS,
+                open=True
+            )
+
+            # Route 53 A record
+            zone = route53.HostedZone.from_lookup(
+                self.stack,
+                self.service_name+"HostedZone",
+                domain_name=self.domain
+            )
 
         # Create Fargate Services
         for i, cluster_service in enumerate(self.cluster_services):
@@ -137,29 +141,27 @@ class EcsFargate:
                 )],
             )
 
+            elbv2.ApplicationListenerRule(
+                self.stack,
+                self.service_name+cluster_service.name+"Rule",
+                priority=i,
+                listener=listener,
+                target_groups=[target_group],
+                conditions=[
+                    elbv2.ListenerCondition.host_headers(
+                        [cluster_service.domain_prefix+"."+self.domain]),
+                ],
+            )
 
-
-            # elbv2.ApplicationListenerRule(
-            #     self.stack,
-            #     self.service_name+cluster_service.name+"Rule",
-            #     priority=1,
-            #     listener=listener,
-            #     target_groups=[target_group],
-            #     conditions=[
-            #         elbv2.ListenerCondition.host_headers(
-            #             [cluster_service.domain_prefix+"."+self.domain]),
-            #     ],
-            # )
-
-            # route53.ARecord(
-            #     self.stack,
-            #     self.service_name+cluster_service.name+"ARecord",
-            #     zone=zone,
-            #     target=route53.RecordTarget.from_alias(
-            #         alias_target=route53_targets.LoadBalancerTarget(self.lb)
-            #     ),
-            #     record_name=cluster_service.domain_prefix+"."+self.domain,
-            # )
+            route53.ARecord(
+                self.stack,
+                self.service_name+cluster_service.name+"ARecord",
+                zone=zone,
+                target=route53.RecordTarget.from_alias(
+                    alias_target=route53_targets.LoadBalancerTarget(self.lb)
+                ),
+                record_name=cluster_service.domain_prefix+"."+self.domain,
+            )
 
             if i == 0:
                 listener.add_target_groups(
